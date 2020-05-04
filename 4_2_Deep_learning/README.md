@@ -1,4 +1,4 @@
-# 4_2_Deeplearning
+### 데이터 문제 해결 및 실습
 
  - **Implicit_feedback_recommendation** : Implicit_data를 이용한 추천시스템 ★★★
  - **Module** : 사용자 Similarity 및 baseline rating 기반의 Memory-based CF 구현 후 모듈화 ★
