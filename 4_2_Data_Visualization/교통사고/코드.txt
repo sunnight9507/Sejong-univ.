@@ -1,0 +1,460 @@
+-----------------------------------첫번째 시각화---------------------------------------
+<!doctype html>
+<html>
+<head>
+    <title>D3 tutorial</title>
+    <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
+    <style>
+      svg{width : 1500px; height :400px; border : 3px;}
+      .line{fill : none;}
+    </style>
+    <!--<script src="d3.min.js"></script>-->
+
+</head>
+<body>
+  <svg id = 'myGraph'></svg>
+  <script>
+
+      var series = ["사고횟수", "사망자수"];
+
+    var dataset = [
+      {'15-01': 365,'15-02': 284,'15-03': 369,'15-04': 338,'15-05': 368,'15-06': 377,'15-07': 344,'15-08': 392,'15-09': 367,'15-10': 455,'15-11': 401,'15-12': 387,'16-01': 323,'16-02': 286,
+      '16-03': 298,'16-04': 346,'16-05': 338,'16-06': 309,'16-07': 341,'16-08': 319,'16-09': 353,'16-10': 410,'16-11': 396,'16-12': 400,'17-01': 342,'17-02': 274,'17-03': 286,'17-04': 278,
+      '17-05': 355,'17-06': 312,'17-07': 343,'17-08': 345,'17-09': 405,'17-10': 408,'17-11': 370,'17-12': 347,'18-01': 297,'18-02': 267,'18-03': 295,'18-04': 292,'18-05': 290,'18-06': 255,
+      '18-07': 305,'18-08': 348,'18-09': 339,'18-10': 363,'18-11': 292,'18-12': 314},
+      {'15-01': 558,'15-02': 539,'15-03': 561,'15-04': 616,'15-05': 619,'15-06': 603,'15-07': 578,'15-08': 647,'15-09': 621,'15-10': 696,'15-11': 574,'15-12': 670,'16-01': 593,'16-02': 475,
+      '16-03': 458,'16-04': 510,'16-05': 542,'16-06': 473,'16-07': 552,'16-08': 518,'16-09': 533,'16-10': 636,'16-11': 617,'16-12': 586,'17-01': 545,'17-02': 441,'17-03': 429,'17-04': 435,
+      '17-05': 545,'17-06': 473,'17-07': 568,'17-08': 530,'17-09': 712,'17-10': 623,'17-11': 538,'17-12': 551,'18-01': 464,'18-02': 429,'18-03': 436,'18-04': 532,'18-05': 471,'18-06': 391,
+      '18-07': 510,'18-08': 526,'18-09': 497,'18-10': 555,'18-11': 422,'18-12': 463}];
+
+    var keys = d3.keys(dataset[0]);
+    var data = [];
+
+    dataset.forEach(function(d, i) {
+    data[i] = keys.map(function(key) { return {x: key, y: d[key]}; })
+    });
+
+    var margin = {left:1, top: 10, right: 1, bottom: 20};
+    var svg = d3.select("svg");
+    var width  = parseInt(svg.style("width"), 10) - margin.left - margin.right;
+    var height = parseInt(svg.style("height"), 10)- margin.top  - margin.bottom;
+    var svgG = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    var xScale = d3.scalePoint()//scaleBand() scaleOrdinal
+        .domain(keys)
+        .rangeRound([0, width]);
+    var yScale = d3.scaleLinear()
+        .domain([0, d3.max(dataset, function(d) { return d3.max(keys, function(key) { return d[key];});})])
+        .nice()
+        .range([height, 0]);
+    var colors = d3.scaleOrdinal(d3.schemeCategory10);
+
+    svgG.append("g")
+        .attr("class", "grid")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xScale)
+            .tickSize(-height)
+        );
+
+    svgG.append("g")
+        .attr("class", "grid")
+        .call(d3.axisLeft(yScale)
+            .ticks(5)
+            .tickSize(-width)
+           );
+
+    var line = d3.line()
+        //.curve(d3.curveBasis)
+        .x(function(d) { return xScale(d.x); })
+        .y(function(d) { return yScale(d.y); });
+    var lineG = svgG.append("g")
+        .selectAll("g")
+        .data(data)
+           .enter().append("g");
+
+    lineG.append("path")
+        .attr("class", "line")
+        .style("stroke", function(d, i) { return colors( series[i]); })
+        .attr("d", function(d, i) {return line(d); });
+
+    lineG.selectAll("dot")
+        .data(function(d) {return d })
+        .enter().append("circle")
+            .attr("r", 3)
+            .attr("cx", function(d) { return xScale(d.x) })
+            .attr("cy", function(d) { return yScale(d.y);});
+
+
+    var legend = svgG.append("g")
+        .attr("text-anchor", "end")
+        .selectAll("g")
+        .data(series)
+        .enter().append("g")
+        .attr("transform", function(d, i) { return "translate(0," + i * 25 + ")"; });
+
+    legend.append("rect")
+          .attr("x", width - 20)
+          .attr("width", 20)
+          .attr("height", 20)
+          .attr("fill", colors);
+
+      legend.append("text")
+          .attr("x", width - 30)
+          .attr("y", 9.5)
+          .attr("dy", "0.32em")
+          .text(function(d) { return d; });
+
+  </script>
+
+
+</body>
+</html>
+-----------------------------------두번째 시각화---------------------------------------
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+body {
+  font: 10px sans-serif;
+  shape-rendering: crispEdges;
+}
+.day {
+  fill: #fff;
+  stroke: #ccc;
+}
+.month {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2px;
+}
+.RdYlGn .q0-11{fill:rgb(165,0,38)}
+.RdYlGn .q1-11{fill:rgb(215,48,39)}
+.RdYlGn .q2-11{fill:rgb(244,109,67)}
+.RdYlGn .q3-11{fill:rgb(253,174,97)}
+.RdYlGn .q4-11{fill:rgb(254,224,139)}
+.RdYlGn .q5-11{fill:rgb(255,255,191)}
+.RdYlGn .q6-11{fill:rgb(217,239,139)}
+.RdYlGn .q7-11{fill:rgb(166,217,106)}
+.RdYlGn .q8-11{fill:rgb(102,189,99)}
+.RdYlGn .q9-11{fill:rgb(26,152,80)}
+.RdYlGn .q10-11{fill:rgb(0,104,55)}
+</style>
+<body>
+<script src="http://d3js.org/d3.v4.min.js"></script>
+<script>
+var width = 960,
+    height = 136,
+    cellSize = 17; // cell size
+
+var percent = d3.format(".1%"),
+    format = d3.timeFormat("%Y-%m-%d");
+
+var color = d3.scaleQuantize()
+    .domain([-.05, .05])
+    .range(d3.range(11).map(function(d) { return "q" + d + "-11"; }));
+
+var svg = d3.select("body").selectAll("svg")
+    .data(d3.range(2015, 2019))
+  .enter().append("svg")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("class", "RdYlGn")
+  .append("g")
+    .attr("transform", "translate(" + ((width - cellSize * 53) / 2) + "," + (height - cellSize * 7 - 1) + ")");
+svg.append("text")
+    .attr("transform", "translate(-6," + cellSize * 3.5 + ")rotate(-90)")
+    .style("text-anchor", "middle")
+    .text(function(d) { return d; });
+var rect = svg.selectAll(".day")
+    .data(function(d) { return d3.timeDays(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+  .enter().append("rect")
+    .attr("class", "day")
+    .attr("width", cellSize)
+    .attr("height", cellSize)
+    .attr("x", function(d) { return d3.timeWeek.count(d3.timeYear(d),d) * cellSize; })
+    .attr("y", function(d) { return d.getDay() * cellSize; })
+    .datum(format);
+rect.append("title")
+    .text(function(d) { return d; });
+svg.selectAll(".month")
+    .data(function(d) { return d3.timeMonths(new Date(d, 0, 1), new Date(d + 1, 0, 1)); })
+  .enter().append("path")
+    .attr("class", "month")
+    .attr("d", monthPath);
+
+d3.csv("result2.csv", function(error, csv) {
+  if (error) throw error;
+    var data = d3.nest()
+    .key(function(d) { return d.Date; })
+        .rollup(function (d) {
+            return Number(d[0].Open);
+        })
+    .map(csv);
+    rect
+        .filter(function (d) {
+            return data.has(d);
+        })
+        .attr("class", function (d) {
+            return "day " + color(data.get(d)/400);
+        })
+    .select("title")
+        .text(function (d) {
+            return d + ": " + percent(data.get(d)/400);
+        });
+
+    console.log(data);
+});
+
+
+
+
+function monthPath(t0) {
+  var t1 = new Date(t0.getFullYear(), t0.getMonth() + 1, 0),
+      d0 = t0.getDay(), w0 = d3.timeWeek.count(d3.timeYear(t0),t0),
+      d1 = t1.getDay(), w1 = d3.timeWeek.count(d3.timeYear(t1),t1);
+  return "M" + (w0 + 1) * cellSize + "," + d0 * cellSize
+      + "H" + w0 * cellSize + "V" + 7 * cellSize
+      + "H" + w1 * cellSize + "V" + (d1 + 1) * cellSize
+      + "H" + (w1 + 1) * cellSize + "V" + 0
+      + "H" + (w0 + 1) * cellSize + "Z";
+}
+</script>
+
+-----------------------------------세번째 시각화---------------------------------------
+<!doctype html>
+<html lang="ko">
+  <head>
+    <title>D3 bar chart example</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <script>
+    const width = 500;
+const height = 500;
+const margin = {top: 40, left: 40, bottom: 40, right: 40};
+
+const data = [
+    {name: '월', value: 2345},
+    {name: '화', value: 2357},
+    {name: '수', value: 2313},
+    {name: '목', value: 2302},
+    {name: '금', value: 2485},
+    {name: '토', value: 2423},
+    {name: '일', value: 2063}
+  ];
+
+const x = d3.scaleBand()
+  // .scaleBand() 그래프의 막대의 반복되는 범위를 정해줍니다.
+  .domain(data.map(d => d.name))
+  // .domain() 각각의 막대에 순서대로 막대에 매핑합니다.
+  .range([margin.left, width - margin.right])
+  // 시작위치와 끝 위치로 눈금의 범위를 지정합니다.
+  .padding(0.2);
+  // 막대의 여백을 설정합니다.
+
+const y = d3.scaleLinear()
+  .domain([0, d3.max(data, d => d.value)]).nice()
+    .range([height - margin.bottom, margin.top]);
+const xAxis = g => g
+  .attr('transform', `translate(0, ${height - margin.bottom})`)
+  .call(d3.axisBottom(x)
+    .tickSizeOuter(0));
+
+const yAxis = g => g
+  .attr('transform', `translate(${margin.left}, 0)`)
+  .call(d3.axisLeft(y))
+  .call(g => g.select('.domain').remove());
+
+const svg = d3.select('body').append('svg').style('width', width).style('height', height);
+
+svg.append('g').call(xAxis);
+svg.append('g').call(yAxis);
+svg.append('g')
+  .attr('fill', 'steelblue')
+  .selectAll('rect').data(data).enter().append('rect')
+  .attr('x', d => x(d.name))
+  .attr('y', d => y(d.value))
+  .attr('height', d => y(0) - y(d.value))
+  .attr('width', x.bandwidth());
+
+svg.node();
+
+    </script>
+  </body>
+</html>
+-----------------------------------네번째 시각화---------------------------------------
+<!doctype html>
+<html lang="ko">
+  <head>
+    <title>D3 bar chart example</title>
+    <script src="https://d3js.org/d3.v5.min.js"></script>
+  </head>
+  <body>
+    <script>
+const width = 500;
+const height = 500;
+const data = [
+  {name: '0', value: 633, color: '#eba81b'},
+  {name: '1', value: 512, color: '#eba82b'},
+  {name: '2', value: 487, color: '#eba83b'},
+  {name: '3', value: 427, color: '#eba84b'},
+  {name: '4', value: 595, color: '#eba85b'},
+  {name: '5', value: 712, color: '#eba86b'},
+  {name: '6', value: 807, color: '#eba87b'},
+  {name: '7', value: 562, color: '#eba88b'},
+  {name: '8', value: 589, color: '#eba89b'},
+  {name: '9', value: 610, color: '#eba8ab'},
+  {name: '10', value: 748, color: '#eba8bb'},
+  {name: '11', value: 671, color: '#eba8cb'},
+  {name: '12', value: 584, color: '#eba8db'},
+  {name: '13', value: 648, color: '#eba8eb'},
+  {name: '14', value: 671, color: '#eba8fb'},
+  {name: '15', value: 689, color: '#eba81c'},
+  {name: '16', value: 669, color: '#eba82b'},
+  {name: '17', value: 822, color: '#eba83b'},
+  {name: '18', value: 1027, color: '#eba84b'},
+  {name: '19', value: 954, color: '#eba85b'},
+  {name: '20', value: 832, color: '#eba86b'},
+  {name: '21', value: 717, color: '#eba87b'},
+  {name: '22', value: 634, color: '#eba88b'},
+  {name: '23', value: 688, color: '#eba8ab'}
+];
+
+const arc = d3.arc().innerRadius(160).outerRadius(Math.min(width, height) / 2);
+
+const arcLabel = (() => {
+  const radius = Math.min(width, height) / 2 * 0.8;
+  return d3.arc().innerRadius(radius).outerRadius(radius);
+})();
+
+const pie = d3.pie()
+  // 새로운 기본값의 파이 모양의 생성
+
+  .value(d => d.value);
+
+const arcs = pie(data);
+
+const svg = d3.select('body').append('svg').style('width', width).style('height', height)
+  .attr('text-anchor', 'middle')
+  .style('font-size', '12px sans-serif');
+
+const g = svg.append('g')
+  .attr('transform', `translate(${width/2}, ${height/2})`);
+
+g.selectAll('path')
+  .data(arcs)
+  .enter().append('path')
+    .attr('fill', d => d.data.color)
+
+    .attr('stroke', 'white')
+    .attr('d', arc)
+  .append('title')
+    .text(d => `${d.data.name}: ${d.data.value}`);
+
+
+const text = g.selectAll('text')
+  .data(arcs)
+  .enter().append('text')
+    .attr('transform', d => `translate(${arcLabel.centroid(d)})`)
+    .attr('dy', '0.35em');
+
+
+text.append('tspan')
+  .attr('x', 0)
+  .attr('y', '-0.7em')
+  .style('font-weight', 'bold')
+  .text(d => d.data.name)
+
+text.append('tspan')
+  .attr('x', 1)
+  .attr('y', '0.7em')
+  .attr('fill-opacity', 1)
+  .text(d => d.data.value);
+
+
+svg.node();
+    </script>
+  </body>
+</html>
+--------------------------------다섯번째 시각화---------------------------------------
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Sample</title>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<style>
+			svg { width: 600px; height: 600px; border: 1px solid black; }
+			circle { stroke: none; opacity : 0.5; }
+			text { font-size: 10pt; text-anchor: middle; fill: black; font-weight: bolder; opacity: 0; }
+		</style>
+	</head>
+	<body>
+		<svg id="myGraph"></svg>
+		<script>
+    var svgWidth = 600;	// SVG요소의 넓이
+    var svgHeight = 600;	// SVG요소의 높이
+    // 데이터셋
+    var dataSet = {
+      name : "전국", value : 51607,
+      children : [
+        { name : "강원", value : 1521 },
+        { name : "경기", value : 13031 },
+        { name : "경남", value : 3356 },
+        { name : "경북", value : 2674 },
+				{ name : "광주", value : 1493 },
+				{ name : "대구", value : 2450 },
+				{ name : "대전", value : 1518},
+				{ name : "부산", value : 3400},
+				{ name : "서울", value : 9705 },
+				{ name : "세종", value : 304},
+				{ name : "울산", value : 1154 },
+				{ name : "인천", value : 2939},
+				{ name : "전남", value : 1790 },
+				{ name : "전북", value : 1820 },
+				{ name : "제주", value : 653},
+				{ name : "충남", value : 2180 },
+				{ name : "충북", value : 1619},
+      ]
+    }
+    // 색을 준비
+    var color = d3.scale.category10();  // 10색을 지정
+    // 팩 레이아웃
+    var bubble = d3.layout.pack()
+      .size([600, 600])	// 표시 크기 지정
+    // 팩 레이아웃으로 사용할 크룹을 작성
+    var pack = d3.select("#myGraph")
+      .selectAll("g")
+      .data(bubble.nodes(dataSet))	// 데이터셋을 요소에 설정
+      .enter()
+      .append("g")
+      .attr("transform", function(d, i){
+        return "translate(" + d.x + "," + d.y + ")";	// X, Y 좌표 설정
+      })
+    // 원 생성
+    pack.append("circle")	// circle 요소를 추가
+      .attr("r", 0)	// 최초 반지름은 0으로 함
+      .transition()
+      .attr("r", function(d){	// 반지름 지정
+        return d.r;
+      })
+      .style("fill", function(d, i){
+        return color(i);
+      })
+    // 원에 표시할 문자 생성
+    pack.append("text")
+      .transition()
+      .style("opacity", 1.0)	// 불투명으로 함
+      .text(function(d, i){
+        if (d.depth == 1){	// 제1계층(도도부현)의 대상
+          return [d.name, (d.value/51607*100).toFixed(0) + '%'];	// name 속성의 내용을 반환
+        }
+        return null;	// 제1계층 이외는 표시하지 않음
+      })
+
+
+
+    </script>
+	</body>
+</html>
+
