@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <stdlib.h>
+ 
+typedef struct List{
+	int num;
+	struct List* next;
+}List;
+ 
+List* newnode(){
+	List *newnode;
+ 
+	newnode = (List*)malloc(sizeof(List));
+	newnode->num = 0;
+	newnode->next = NULL;
+ 
+	return newnode;
+}
+ 
+void init(List* L,int N){
+	int i;
+	List *temp;
+ 
+	temp = L;
+ 
+	for(i=1;i<=N;i++){
+		scanf("%d",&temp->num);
+		if(i == N)
+			return;
+		temp->next = newnode();
+		temp = temp->next;
+	}
+
+	free(temp);
+}
+ 
+void print(List* L,int N){
+	int i;
+	List *temp;
+ 
+	temp = L;
+ 
+	for(i=1;i<=N;i++){
+		printf(" %d",temp->num);
+		temp = temp->next;
+	}
+	printf("\n");
+	free(temp);
+}
+ 
+List* partition(List* L,int mid){
+	List* temp,* L1;
+	int i;
+	
+	temp = L;
+ 
+	for(i=1;i<=mid-1;i++){
+		temp = temp->next;
+	}		
+ 
+	L1 = temp->next;
+	temp->next = NULL;
+ 
+	return L1;
+}
+ 
+List* merge(List* L1,List* L2){
+	List *temp1,*temp2,*temp,*L;
+
+	temp1 = L1;
+	temp2 = L2;
+
+	if(temp1->num > temp2->num){
+		temp = temp2;
+		L = temp;
+		temp2 = temp2->next;
+	}
+	else{
+		temp = temp1;
+		L = temp;
+		temp1 = temp1->next;
+	}
+
+	while(temp1 != NULL && temp2 != NULL){
+		if(temp1->num < temp2->num){
+			temp->next = temp1;
+			temp1 = temp1->next;
+			temp = temp->next;
+		}
+		else{
+			temp->next = temp2;
+			temp2 = temp2->next;
+			temp = temp->next;
+		}
+	}
+	if(temp1 == NULL){
+		temp->next = temp2;
+	}
+	if(temp2 == NULL){
+		temp->next = temp1;
+	}
+
+	return L;
+}
+ 
+List* mergeSort(List* L,int N){
+	int mid1,mid2;
+	List* L1;
+
+	mid1 = N/2;
+	mid2 = N-mid1;
+
+	if(mid1 != 0){
+		L1 = partition(L,mid1);
+
+		L = mergeSort(L,mid1);
+		L1 = mergeSort(L1,mid2);
+
+		L = merge(L,L1);
+	}
+	return L; 
+}
+ 
+int main(){
+	int N;
+	List* L;
+ 
+	scanf("%d",&N);
+ 
+	L = newnode();
+ 
+	init(L,N);
+ 
+	L = mergeSort(L,N);
+
+	print(L,N);
+
+	free(L);
+}

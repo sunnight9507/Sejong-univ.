@@ -1,0 +1,73 @@
+#include <stdio.h>
+
+int h[100];
+int n=0;
+
+void downHeap(int k){
+	int temp,max;
+
+	if(k*2 > n){
+		return;
+	}
+	max = k*2;
+	if(k*2+1 <= n){
+		if(h[k*2+1] > h[max]){
+			max = k*2+1;
+		}
+	}
+	if(h[k] >= h[max])
+		return;
+	temp = h[max];
+	h[max] = h[k];
+	h[k] = temp;
+	downHeap(max);
+}
+
+void printHeap(){
+	int i;
+	for(i=1;i<=n;i++){
+		printf(" %d",h[i]);
+	}
+}
+
+int removeMax(){
+	int key;
+	key = h[1];
+	h[1] = h[n];
+	n--;
+	downHeap(1);
+	return key;
+}
+
+void inPlaceHeapSort(){
+	int i,Max,N;
+
+	for(i=n/2;i>=1;i--){
+		downHeap(i);
+	} // 상향식 힙생성
+
+	N = n;
+
+	for(i=1;i<=N;i++){
+		Max = removeMax();
+		h[n+1] = Max;
+	}
+
+	n = N;
+}
+
+int main(){
+	char input;
+	int re,i;
+	
+	scanf("%d",&n);
+
+	for(i=1;i<=n;i++){
+		scanf("%d",&h[i]);
+	}
+
+	inPlaceHeapSort();
+	
+	printHeap();
+
+}

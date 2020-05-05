@@ -1,0 +1,37 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int find(int *a,int k,int l,int r){
+	int mid;
+
+	if(l>r)
+		return r;
+
+	mid = (r+l)/2;
+
+	if(k == a[mid])
+		return mid;
+	else if(k > a[mid])
+		return find(a,k,mid+1,r);
+	else
+		return find(a,k,l,mid-1);	
+}
+
+int main(){
+	int n,k,i,result;
+	int *a;
+
+	scanf("%d %d",&n,&k);
+
+	a = (int*)malloc(sizeof(int)*n);
+
+	for(i=0;i<n;i++){
+		scanf("%d",&a[i]);
+	}
+
+	result = find(a,k,0,n-1);
+
+	printf("%d",result);
+
+	free(a);
+}

@@ -1,0 +1,392 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node{
+	struct Node *lChild;
+	struct Node *rChild;
+	struct Node *parent;
+	int key;
+	int height;
+}Node;
+
+Node* newnode(){
+	Node *temp;
+
+	temp = (Node*)malloc(sizeof(Node));
+
+	temp->key = 0;
+	temp->height = 0;
+	temp->lChild = NULL;
+	temp->rChild = NULL;
+	temp->parent = NULL;
+
+	return temp;
+}
+
+void expandExternal(Node *w){
+	Node *l = newnode();
+	Node *r = newnode();
+
+	l->parent = w;
+	r->parent = w;
+	w->lChild = l;
+	w->rChild = r;
+	w->height = 1;
+
+	return;
+}
+
+int isExternal(Node *w){
+	if(w->lChild == NULL &&  w->rChild == NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int isInternal(Node *w){
+	if(w->lChild != NULL || w->rChild != NULL)
+		return 1;
+	else
+		return 0;
+}
+
+int isRoot(Node *w){
+	if(w->parent == NULL)
+		return 1;
+	else return 0;
+}
+
+Node* treeSearch(Node *w,int k){
+	if(isExternal(w))
+		return w;
+	if(k == w->key)
+		return w;
+	else if(k < w->key)
+		return treeSearch(w->lChild,k);
+	else if(k > w->key)
+		return treeSearch(w->rChild,k);
+}
+
+int updateHeight(Node *w){
+	Node *l = newnode();
+	Node *r = newnode();
+	int h;
+
+	l = w->lChild;
+	r = w->rChild;
+	if(l->height > r->height)
+		h = l->height+1;
+	else
+		h = r->height+1;
+
+	if(h != w->height){
+		w->height = h;
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+int isBalanced(Node *w){
+	Node *l = newnode();
+	Node *r = newnode();
+	int k;
+
+	l = w->lChild;
+	r = w->rChild;
+
+	if(l->height > r->height)
+		k = l->height - r->height;
+	else
+		k = r->height - l->height;
+
+	return k<2;
+}
+
+Node* restructure(Node *x,Node *y,Node *z){
+	Node *a = newnode();
+	Node *b = newnode();
+	Node *c = newnode();
+	Node *t0 = newnode();
+	Node *t1 = newnode();
+	Node *t2 = newnode();
+	Node *t3 = newnode();
+
+	if((x->key > y->key) && (y->key > z->key)){
+		a = z;
+		b = y;
+		c = x;
+		t0 = a->lChild;
+		t1 = b->lChild;
+		t2 = c->lChild;
+		t3 = c->rChild;
+	}
+	else if((z->key > y->key) && (y->key > x->key)){
+		a = x;
+		b = y;
+		c = z;
+		t0 = a->lChild;
+		t1 = a->rChild;
+		t2 = b->rChild;
+		t3 = c->rChild;
+	}
+	else if((y->key > x->key) && (x->key > z->key)){
+		a = z;
+		b = x;
+		c = y;
+		t0 = a->lChild;
+		t1 = b->lChild;
+		t2 = b->rChild;
+		t3 = c->rChild;
+	}
+	else if((z->key > x->key) && (x->key > y->key)){
+		a = y;
+		b = x;
+		c = z;
+		t0 = a->lChild;
+		t1 = b->lChild;
+		t2 = b->rChild;
+		t3 = c->rChild;
+	}
+
+	if(isRoot(z)){
+		z = b;
+		b->parent = NULL;
+	}
+	else if(z->parent->lChild == z){
+		z->parent->lChild = b;
+		b->parent = z->parent;
+	}
+	else{
+		z->parent->rChild = b;
+		b->parent = z->parent;
+	}
+
+	a->lChild = t0;
+	t0->parent = a;
+	a->rChild = t1;
+	t1->parent = a;
+	updateHeight(a);
+
+	c->lChild = t2;
+	t2->parent = c;
+	c->rChild = t3;
+	t3->parent = c;
+	updateHeight(c);
+
+	b->lChild = a;
+	a->parent = b;
+	b->rChild =c;
+	c->parent = b;
+	updateHeight(b);
+
+
+	return b;
+}
+
+Node* searchAndFixAfterInsertion(Node *w){
+	Node *x = newnode();
+	Node *y = newnode();
+	Node *z = newnode();
+
+	z = w->parent;
+
+	while(updateHeight(z) && isBalanced(z)){
+		if(z->parent == NULL)
+			return;
+		z = z->parent;
+	}
+
+	if(isBalanced(z))
+		return;
+
+	if(z->lChild->height >= z->rChild->height)
+		y = z->lChild;
+	else
+		y = z->rChild;
+
+	if(y->lChild->height >= y->rChild->height)
+		x = y->lChild;
+	else
+		x = y->rChild;
+
+	z = restructure(x,y,z);
+
+
+
+	return z;	
+}
+
+void insertItem(Node *w,int k){
+	Node *w1 = newnode();
+
+	w1 = treeSearch(w,k);
+
+	if (isInternal(w1))
+		return;
+	else{
+		expandExternal(w1);
+		w1->key = k;
+		if(w1->parent != NULL)
+			w1 = searchAndFixAfterInsertion(w1);
+		w = w1;
+		return;
+	}
+}
+
+int findElement(Node *w,int k){
+	Node *w1;
+
+	w1 = treeSearch(w,k);
+	if(isExternal(w1))
+		return 0;
+	else
+		return w1->key;
+
+}
+
+void Print(Node* w)
+{
+	if(w == NULL || w->key == 0)
+		return;
+
+	printf(" %d", w->key);
+
+	Print(w->lChild);
+
+	Print(w->rChild);
+}
+
+Node* reduceExternal(Node *z){
+	Node *w=newnode();
+	Node *zs=newnode();
+	Node *g = newnode();
+
+	w = z->parent;
+	if(w->lChild == z){
+		zs = w->rChild;
+		
+	}
+	else{
+		zs = w->lChild;
+	}
+
+	if(isRoot(w)){
+		zs->parent = NULL;
+	}
+	else{
+		g = w->parent;
+		zs->parent = g;
+		if (w == g->lChild)
+			g->lChild = zs;
+		else
+			g->rChild = zs;
+	}
+	free(z);
+	free(w);
+
+	return zs;
+}
+
+Node* inOrderSucc(Node *w){
+	Node *w1=newnode();
+
+	w1 = w->rChild;
+	if (isExternal(w1))
+		return w1;
+	while (isInternal(w1->lChild))
+		w1 = w1->lChild;
+	return w1;
+}
+
+int removeElement(Node *w,int k){
+	int e;
+	Node *y=newnode();
+	Node *z=newnode();
+
+	w = treeSearch(w,k);
+
+	if (isExternal(w)){
+		return 0;
+	}
+
+	e = w->key;
+
+	z = w->lChild;
+
+	if (!isExternal(z))
+		z = w->rChild;
+
+	if (isExternal(z))
+		w = reduceExternal(z);
+	else{
+		y = inOrderSucc(w);
+		z = y->lChild;
+		w->key = y->key;
+		w = reduceExternal(z);
+	}
+
+	return e;
+}
+
+void putnode(Node *w){
+        if (w == NULL)
+               return;
+		putnode(w->lChild);
+
+		putnode(w->rChild);
+
+        free(w);
+}
+
+int main(){
+	Node *w;
+	char a;
+	int k,find,e;
+
+	w = newnode();
+
+	while(1){
+		scanf("%c",&a);
+		getchar();
+		switch(a){
+			case 'i':
+				scanf("%d",&k);
+				getchar();
+				insertItem(w,k);
+				if(!isRoot(w))
+					w = w->parent;
+				//printf("5. %d\n",w->key);
+				break;
+			case 'd':
+				scanf("%d",&k);
+				e = removeElement(w,k);
+				if(e==0)
+					printf("X\n");
+				else
+					printf("%d\n",e);
+				getchar();
+				break;
+			case 's':
+				scanf("%d",&k);
+				getchar();
+				find = findElement(w,k);
+				if(find == 0) 
+					printf("X\n");
+				else 
+					printf("%d\n",find);
+				break;
+			case 'p':
+				Print(w);
+				printf("\n");
+				break;
+			case 'q':
+				putnode(w);
+				return;
+		}
+	}
+
+
+
+}

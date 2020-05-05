@@ -1,0 +1,105 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int hashfuntion(int M,int x){
+	return x%M;
+}
+
+int secondhashfuntion(int x,int q){
+	return q-(x%q);
+}
+
+int insertItem(int *w,int x,int M,int q){
+	int k;
+
+	k = hashfuntion(M,x);
+	
+	if(w[k] == 0){
+		w[k] = x;
+		return k;
+	}
+	else{
+		while(1){
+			printf("C");
+			k += secondhashfuntion(x,q);
+			k %= M;
+			if(w[k] == 0){
+				w[k] = x;
+				return k;
+			}
+		}
+	}
+	
+}
+
+void findElement(int *w,int x,int M,int q){
+	int i;
+	int k;
+
+	k = hashfuntion(M,x);
+
+	while(1){
+		if(w[k] == x){
+			printf("%d %d\n",k,x);
+			return;
+		}
+		if(w[k] == 0)
+			break;
+
+		k += secondhashfuntion(x,q);
+
+		k = hashfuntion(M,k);	
+	}
+
+	printf("-1\n");
+	return;
+}
+
+void Print(int *w,int M){
+	int i;
+
+	for(i=0;i<M;i++)
+		printf(" %d",w[i]);
+	printf("\n");
+	return;
+}
+
+int main(){
+	int *w;
+	char a;
+	int k,find,e;
+	int M,n,i,q;
+
+	scanf("%d %d %d",&M,&n,&q);
+	getchar();
+	
+	w = (int*)calloc(M,sizeof(int));
+
+	for(i=0;i<=n;){
+		scanf("%c",&a);
+		if(a == 'e'){
+			Print(w,M);
+			break;
+		}
+		switch(a){
+			case 'i':
+				scanf("%d",&k);
+				getchar();
+				e = insertItem(w,k,M,q);
+				printf("%d\n",e);
+				i++;
+				break;
+			case 's':
+				scanf("%d",&k);
+				getchar();
+				findElement(w,k,M,q);
+				break;
+			case 'p':
+				Print(w,M);
+				break;
+		}
+	}
+
+	free(w);
+
+}

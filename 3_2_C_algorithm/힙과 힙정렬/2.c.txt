@@ -1,0 +1,67 @@
+#include <stdio.h>
+
+int h[100];
+int n=0;
+
+void downHeap(int k){
+	int temp;
+	if(k*2 > n){
+		return;
+	}
+	else{
+		if(h[k] >= h[k*2] && h[k] >= h[k*2+1]){
+			return;
+		}
+		else{
+			if(h[k*2] < h[k] && h[k*2+1] < h[k]){
+				return;
+			}else{
+				if(h[k*2+1] < h[k*2]){
+					temp = h[k];
+					h[k] = h[k*2];
+					h[k*2] = temp;
+					downHeap(k*2);
+				}
+				else{
+					temp = h[k];
+					h[k] = h[k*2+1];
+					h[k*2+1] = temp;
+					downHeap(k*2+1);
+				}
+			}
+		}
+	}
+}
+
+void printHeap(){
+	int i;
+	for(i=1;i<=n;i++){
+		printf(" %d",h[i]);
+	}
+}
+
+void buildHeap(){
+	int i;
+
+	for(i=n/2;i>=1;i--){
+		downHeap(i);
+	}
+
+	return;
+}
+
+int main(){
+	char input;
+	int re,i;
+	
+	scanf("%d",&n);
+
+	for(i=1;i<=n;i++){
+		scanf("%d",&h[i]);
+	}
+
+	buildHeap();
+	
+	printHeap();
+
+}

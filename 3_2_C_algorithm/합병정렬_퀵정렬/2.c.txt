@@ -1,0 +1,128 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+int inplacepartition(int *a,int l,int r,int k){
+	int mid,temp,i=l,N,same=0,R=r;
+
+	N = r-l;
+
+	mid = a[k];
+	a[k] = a[r];
+	a[r] = mid;
+	r--;
+
+	while(N>=1){
+		if(a[i+same] == mid){
+			N--;
+			same++;
+			continue;
+		}
+		else if(a[i+same] > mid){
+			temp = a[r];
+			a[r] = a[i+same];
+			a[i+same] = temp;
+			r--;
+		}
+		else{
+			temp = a[l];
+			a[l] = a[i+same];
+			a[i+same] = temp;
+			l++;
+			i++;
+		}
+		N--;
+	}
+
+	for(i=l;i<=r;i++){
+		a[i] = mid;
+	}
+
+	temp = a[r+1];
+	a[r+1] = a[R];
+	a[R] = temp;
+
+	return l;
+}
+
+int findpivortindex(int *a,int l,int r){
+	int j,i,k[3],temp;
+
+	srand(time(NULL));
+
+	if(r-l < 3)
+		return l;
+
+	for(i=0;i<3;i++){
+		k[i]=rand()%(r-l)+l;
+		for(j=0;j<i;j++){
+			if(k[j] == k[i]){
+				i--;
+				break;
+			}
+		}
+	}
+
+	for(i=0;i<3;i++){
+		for(j=i;j<=2;j++){
+			if(a[k[i]]>a[k[j]]){
+				temp=k[i];
+				k[i]=k[j];
+				k[j]=temp;
+			}
+		}
+	}
+
+	return k[1];
+}
+
+int findsame(int *a,int k){
+	int i=k;
+
+	while(a[k] == a[i]){
+		i++;
+	}
+
+	return i-1;
+}
+
+void inplacequicksort(int *ar,int l,int r){
+	int k,a,b;
+
+	if(l>=r)
+		return;
+	
+	k = findpivortindex(ar,l,r);
+
+	a = inplacepartition(ar,l,r,k);
+	b = findsame(ar,a);
+
+	inplacequicksort(ar,l,a-1);
+	inplacequicksort(ar,b+1,r);
+}
+
+void print(int *a,int N){
+	int i;
+
+	for(i=0;i<N;i++){
+		printf(" %d",a[i]);
+	}
+}
+
+void main() {
+	int N,i,*a;
+	
+	scanf("%d",&N);
+
+	a = (int*)malloc(sizeof(int)*N);
+	
+	for(i=0;i<N;i++){
+		scanf("%d",&a[i]);
+	}
+
+	inplacequicksort(a,0,N-1);
+
+	print(a,N);
+
+	free(a);
+}

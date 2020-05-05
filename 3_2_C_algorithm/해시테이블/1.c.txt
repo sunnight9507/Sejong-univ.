@@ -1,0 +1,160 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct Node{
+	int k;
+	struct Node *next;
+}Node;
+
+Node * newnode(int x){
+	Node * temp;
+
+	temp = (Node*)malloc(sizeof(Node));
+	temp->next = NULL;
+	temp->k = x;
+
+	return temp;
+}
+
+int hashfuntion(int M,int x){
+	return x%M;
+}
+
+void insertItem(Node **w,int x,int M){
+	Node *node = newnode(x);
+	Node *tmp;
+	int k;
+
+	k = hashfuntion(M,x);
+	
+	tmp = w[k]->next;
+	w[k]->next = node;
+	node->next = tmp;
+}
+
+int removeElement(Node **w,int x,int M){
+	Node *tmp;
+	Node *del;
+	int k,r=0;
+
+	k = hashfuntion(M,x);
+
+	if(w[k]->next == NULL)
+		return 0;
+	
+	tmp = w[k];
+
+	while(1){
+		if(x == tmp->next->k){
+			del = tmp->next;
+			tmp->next = tmp->next->next;
+			free(del);
+			r++;
+			return r;
+		}
+		tmp = tmp->next;
+		r++;
+		if(tmp->next == NULL)
+			return 0;
+	}
+}
+
+int findElement(Node **w,int x,int M){
+	Node *tmp;
+	int k,s=0;
+
+	k = hashfuntion(M,x);
+
+	if(w[k]->next == NULL)
+		return 0;
+	
+	tmp = w[k];
+
+	while(1){
+		tmp = tmp->next;
+		s++;
+		if(x == tmp->k){
+			return s;
+		}
+		if(tmp->next == NULL)
+			return 0;
+	}
+}
+
+void Print(Node **w,int M){
+	Node *tmp;
+	int i;
+
+	for(i=0;i<M;i++){
+		tmp = w[i];
+		while(1){
+			tmp = tmp->next;
+			if(tmp == NULL)
+				break;
+			printf(" %d",tmp->k);
+		}
+	}
+}
+
+void putnode(Node **w,int M){
+	Node *tmp;
+	int i;
+
+	for(i=0;i<M;i++){
+		while(w[i]->next != NULL){
+			tmp = w[i]->next;
+			w[i]->next = w[i]->next->next;
+			free(tmp);
+		}
+	}
+
+}
+
+int main(){
+	Node **w;
+	char a;
+	int k,find,e;
+	int M,i;
+
+	scanf("%d",&M);
+	getchar();
+
+	w = (Node**)malloc(sizeof(Node*)*M);
+	for(i=0;i<M;i++)
+		w[i] = newnode(0);
+
+	while(1){
+		scanf("%c",&a);
+		getchar();
+		switch(a){
+			case 'i':
+				scanf("%d",&k);
+				getchar();
+				insertItem(w,k,M);
+				break;
+			case 'd':
+				scanf("%d",&k);
+				getchar();
+				e = removeElement(w,k,M);
+				printf("%d\n",e);
+				break;
+			case 's':
+				scanf("%d",&k);
+				getchar();
+				find = findElement(w,k,M);
+				printf("%d\n",find);
+				break;
+			case 'p':
+				Print(w,M);
+				printf("\n");
+				break;
+			case 'e':
+				putnode(w,M);
+				free(w);
+				return;
+		}
+	}
+
+	
+
+}

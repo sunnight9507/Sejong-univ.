@@ -1,0 +1,43 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int find(int l,int r,int n){
+	int mid,i=0;
+	char *YN;
+
+	YN = (char*)malloc(sizeof(char)*(n+1));
+
+	getchar();
+	gets(YN);
+
+	while(1){
+		if(n==0 || l==r)
+			break;
+
+		mid = (l+r)/2;
+		
+		if(YN[i] == 'Y')
+			l = mid+1;
+		else if(YN[i] == 'N'){
+			r = mid;
+		}
+		n--;
+		i++;
+	}
+
+	free(YN);
+
+	return l;
+}
+
+int main(){
+	int n,result;
+	int a,b;
+
+	scanf("%d %d %d",&a,&b,&n);
+
+	result = find(a,b,n);
+
+	printf("%d",result);
+
+}
