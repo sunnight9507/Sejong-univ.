@@ -1,2 +1,2 @@
-# Sejong-univ.
+# univ.
 On-campus courses
